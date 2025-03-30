@@ -1,0 +1,8 @@
+.idea/
+__pycache__/
+.idea_modules/
+*.iws
+
+res/
+
+out/

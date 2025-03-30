@@ -132,7 +132,7 @@ if __name__ == "__main__":
     
     colors_json = search_laptops_by_range("base_speed", 2.42, 3.7)
     
-    with open("data_by_range_parameter.json", "a", encoding="utf-8") as file:
+    with open("res/data_by_range_parameter.json", "a", encoding="utf-8") as file:
         file.write(colors_json)
 
     print("Done!")

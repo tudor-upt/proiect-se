@@ -1,24 +1,24 @@
-from pymongo import MongoClient
-import webcolors
 import json
+
+import webcolors
+from pymongo import MongoClient
 
 connection_string = "mongodb+srv://viktorungur02:5RQBhm7qmuEF8kZU@cluster0.axlsb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 db_name = "Project_SE"
 
 # function for getting all unique colors and their HEX code
 def get_unique_colors(collection_name):
-
     client = MongoClient(connection_string)
     db = client[db_name]
     collection = db[collection_name]
-    
+
     unique_colors = set()
-    
+
     for document in collection.find({}, {"colors": 1, "_id": 0}):
         colors = document.get("colors", [])
         for color in colors:
             unique_colors.add(color.strip())
-    
+
 
     colors_list = []
     for color in sorted(unique_colors):
@@ -27,7 +27,7 @@ def get_unique_colors(collection_name):
         except ValueError:
             hex_code = None
         colors_list.append({"name": color, "hex": hex_code})
-    
+
     result_json = {"colors": colors_list}
     return json.dumps(result_json, indent=4)
 
@@ -471,8 +471,6 @@ def get_unique_gpu_memory(collection_name):
 if __name__ == "__main__":
     
     colors_json = get_unique_gpu_memory("GPU")
-    
-    with open("unique_gpu_memory_sizes.json", "w", encoding="utf-8") as file:
-        file.write(colors_json)
+    print(colors_json)
 
     print("Done!")
