@@ -1,0 +1,18 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #1c1c1c;
+  color: #f1f1f1;
+}
+
+input[type="checkbox"] {
+  accent-color: #ff5722;
+}
+
+.app-container {
+  display: flex;
+}
+
+h2, h3, h4, label {
+  color: #f1f1f1;
+}
