@@ -6,3 +6,5 @@ __pycache__/
 res/
 
 out/
+api/__pycache__
+backend/__pycache__
