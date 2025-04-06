@@ -1,15 +1,32 @@
-// src/App.jsx
-import CheckboxGroup from './components/CheckboxGroup';
+import React, { useState, useEffect } from 'react';
+import Filters from './components/Filters.jsx';
+import LaptopList from './components/LaptopList.jsx';
+import Header from "./components/Header.jsx"; // you can add Tailwind or custom CSS
+import './App.css';
 
 function App() {
-    return (
-        <div className="p-6 max-w-3xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Laptop Specifications</h1>
+    const [filters, setFilters] = useState({});
+    const [laptops, setLaptops] = useState([]);
 
-            <CheckboxGroup title="Colors" endpoint="colors/" dataKey="colors" renderOption={(c) => c.name} />
-            <CheckboxGroup title="RAM Size" endpoint="memory-size/" dataKey="RAM_size" />
-            {/* Add more groups below like this */}
+    useEffect(() => {
+        if (Object.keys(filters).length === 0) return;
+
+        const query = new URLSearchParams(filters).toString();
+        fetch(`http://localhost:8000/laptops/?${query}`)
+            .then(res => res.json())
+            .then(data => setLaptops(data))
+            .catch(err => console.error(err));
+    }, [filters]);
+
+    return (
+        <div>
+            <Header />
+            <div className="app-container" style={{ display: 'flex' }}>
+                <Filters setFilters={setFilters} />
+                <LaptopList laptops={laptops} />
+            </div>
         </div>
+
     );
 }
 
