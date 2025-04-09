@@ -3,9 +3,11 @@ function LaptopList({ laptops }) {
         <div style={{
             flex: 1,
             padding: '1rem',
+            overflowY: 'auto',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1rem'
+            gap: '1rem',
+            height: '100%'
         }}>
             {laptops.length === 0 ? (
                 <p style={{ gridColumn: '1 / -1', textAlign: 'center' }}>No laptops found.</p>

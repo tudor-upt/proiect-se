@@ -21,14 +21,13 @@ function App() {
     }, [filters]);
 
     return (
-        <div>
+        <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <Header />
-            <div className="app-container" style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 <Filters setFilters={setFilters} />
                 <LaptopList laptops={laptops} />
             </div>
         </div>
-
     );
 }
 
