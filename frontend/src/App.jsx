@@ -9,10 +9,12 @@ function App() {
     const [laptops, setLaptops] = useState([]);
 
     useEffect(() => {
-        if (Object.keys(filters).length === 0) return;
-
         const query = new URLSearchParams(filters).toString();
-        fetch(`http://localhost:8000/laptops/?${query}`)
+        const url = query
+            ? `http://localhost:8000/laptops/?${query}`
+            : `http://localhost:8000/laptops/`;
+
+        fetch(url)
             .then(res => res.json())
             .then(data => setLaptops(data))
             .catch(err => console.error(err));
