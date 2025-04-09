@@ -33,7 +33,7 @@ const filterQueryParams = {
     'Storage Size': 'total_storage',
     'Display Size': 'display_size',
     'Display Type': 'display_type',
-    'Resolution': 'display_resolution', // special handling needed
+    'Resolution': 'display_resolution',
     'Weight': 'weight',
     'Price': 'price',
     'Battery Capacity': 'battery_capacity',
@@ -53,7 +53,7 @@ function Filters({setFilters}) {
     const [openSections, setOpenSections] = useState({});
     const [priceRange, setPriceRange] = useState([0, 10000]);
     const [priceBounds, setPriceBounds] = useState([0, 10000]);
-    const [loading, setLoading] = useState(true); // 👈 Add loading state
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -64,21 +64,30 @@ function Filters({setFilters}) {
                     let data = res.data[key];
 
                     if (label === 'Resolution') {
-                        data = data.map(r => `${r.horizontal}x${r.vertical}`);
-                    }
-
-
-                    // if (label === 'Weight') {
-                    //     const maxWeight = res.data.max;
-                    //     const roundedMax = Math.ceil(maxWeight);
-                    //     data = Array.from({length: roundedMax}, (_, i) => `< ${i + 1}kg`);
-                    // }
-
-                    if (label === 'Price') {
+                        data = data.map(r => ({
+                            display: `${r.horizontal}x${r.vertical}`,
+                            raw: `${r.horizontal}x${r.vertical}`
+                        }));
+                    } else if (label === 'Weight') {
+                        const maxWeight = res.data.max;
+                        const roundedMax = Math.ceil(maxWeight);
+                        data = Array.from({length: roundedMax}, (_, i) => ({display: `< ${i + 1}kg`, raw: i + 1}));
+                    } else if (label === 'Price') {
                         const min = res.data.min;
                         const max = res.data.max;
                         setPriceRange([min, max]);
                         setPriceBounds([min, max]);
+                        return {label, data: []}; // skip rendering
+                    } else if (label === 'RAM Size' || label === 'Storage Size') {
+                        data = data.map(v => ({display: `${v} GB`, raw: v}));
+                    } else if (label === 'CPU Base Speeds') {
+                        data = data.map(v => ({display: `${v} GHz`, raw: v}));
+                    } else if (label === 'Display Size') {
+                        data = data.map(v => ({display: `${v}\"`, raw: v}));
+                    } else if (label === 'GPU Memory') {
+                        data = data.map(v => ({display: `${v} MB`, raw: v}));
+                    } else {
+                        data = data.map(v => ({display: v, raw: v}));
                     }
 
                     return {label, data};
@@ -94,7 +103,7 @@ function Filters({setFilters}) {
 
             setOptions(opts);
             setOpenSections(toggles);
-            setLoading(false); // 👈 Done loading
+            setLoading(false);
         };
 
         fetchAll();
@@ -127,7 +136,6 @@ function Filters({setFilters}) {
                 }
             }
         }
-
 
         setFilters(flat);
     };
@@ -241,8 +249,9 @@ function Filters({setFilters}) {
                                     />
                                 </div>
                             ) : (
-                                values.map((value, idx) => {
-                                    const label = typeof value === 'object' ? value.name : value;
+                                values.map((valueObj, idx) => {
+                                    const label = valueObj.display;
+                                    const raw = valueObj.raw;
                                     return (
                                         <div key={idx} style={{marginBottom: '0.3rem'}}>
                                             <label style={{
@@ -253,8 +262,8 @@ function Filters({setFilters}) {
                                             }}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={selected[category]?.has(label) || false}
-                                                    onChange={() => handleChange(category, label)}
+                                                    checked={selected[category]?.has(raw) || false}
+                                                    onChange={() => handleChange(category, raw)}
                                                 />
                                                 {label}
                                             </label>
