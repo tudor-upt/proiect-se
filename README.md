@@ -20,3 +20,8 @@ Django Migration:
 
 `python manage.py runserver`
 
+weight -> limita superioara
+pret -> range
+capacitate baterie -> limitai inferioara
+battery life -> inferioara
+base speed -> inferioara
