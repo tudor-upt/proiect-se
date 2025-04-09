@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-// import ReactSlider from 'react-slider';
 
 const filterEndpoints = {
   'Colors': 'colors',
@@ -31,35 +30,50 @@ function Filters({ setFilters }) {
   const [openSections, setOpenSections] = useState({});
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [priceBounds, setPriceBounds] = useState([0, 10000]);
+  const [loading, setLoading] = useState(true); // 👈 Add loading state
 
   useEffect(() => {
-    Object.entries(filterEndpoints).forEach(([label, endpoint]) => {
-      axios.get(`http://localhost:8000/${endpoint}/`).then(res => {
-        const key = Object.keys(res.data)[0];
-        let data = res.data[key];
+    const fetchAll = async () => {
+      const results = await Promise.all(
+          Object.entries(filterEndpoints).map(async ([label, endpoint]) => {
+            const res = await axios.get(`http://localhost:8000/${endpoint}/`);
+            const key = Object.keys(res.data)[0];
+            let data = res.data[key];
 
-        if (label === 'Resolution') {
-          data = data.map(r => `${r.horizontal}x${r.vertical}`);
-        }
+            if (label === 'Resolution') {
+              data = data.map(r => `${r.horizontal}x${r.vertical}`);
+            }
 
-        if (label === 'Weight') {
-          const maxWeight = res.data.max;
-          const roundedMax = Math.ceil(maxWeight);
-          data = Array.from({ length: roundedMax }, (_, i) => `< ${i + 1}kg`);
-        }
+            if (label === 'Weight') {
+              const maxWeight = res.data.max;
+              const roundedMax = Math.ceil(maxWeight);
+              data = Array.from({ length: roundedMax }, (_, i) => `< ${i + 1}kg`);
+            }
 
+            if (label === 'Price') {
+              const min = res.data.min;
+              const max = res.data.max;
+              setPriceRange([min, max]);
+              setPriceBounds([min, max]);
+            }
 
-        if (label === 'Price') {
-          const min = res.data.min;
-          const max = res.data.max;
-          setPriceRange([min, max]);
-          setPriceBounds([min, max]);
-        }
+            return { label, data };
+          })
+      );
 
-        setOptions(prev => ({ ...prev, [label]: data }));
-        setOpenSections(prev => ({ ...prev, [label]: false }));
+      const opts = {};
+      const toggles = {};
+      results.forEach(({ label, data }) => {
+        opts[label] = data;
+        toggles[label] = false;
       });
-    });
+
+      setOptions(opts);
+      setOpenSections(toggles);
+      setLoading(false); // 👈 Done loading
+    };
+
+    fetchAll();
   }, []);
 
   const toggleSection = (category) => {
@@ -93,6 +107,24 @@ function Filters({ setFilters }) {
       [filterEndpoints['Price']]: `${updated[0]}-${updated[1]}`
     }));
   };
+
+  if (loading) {
+    return (
+        <div style={{
+          width: '260px',
+          padding: '1rem',
+          backgroundColor: '#2a2a2a',
+          borderRight: '1px solid #444',
+          height: '100vh',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <p>Loading filters...</p>
+        </div>
+    );
+  }
 
   return (
       <div style={{
@@ -129,6 +161,7 @@ function Filters({ setFilters }) {
         </div>
 
         <hr style={{border: '0', borderTop: '1px solid #444', margin: '1rem 0'}}/>
+
         {Object.entries(options).map(([category, values]) => (
             <div key={category} style={{ marginBottom: '1.5rem' }}>
               <div
