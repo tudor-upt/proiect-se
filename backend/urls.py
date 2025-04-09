@@ -25,4 +25,5 @@ urlpatterns = [
     path('gpu/producers/', views.unique_gpu_producers),
     path('gpu/models/<str:producer>/', views.unique_gpu_models),
     path('gpu/memory/', views.unique_gpu_memory),
+    path('laptops/', views.get_filtered_laptops),
 ]

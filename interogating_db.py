@@ -44,6 +44,31 @@ def get_laptop_details_by_model(laptop_collection_name, model_name):
     return json.dumps(laptop, default=str, indent=4)
 
 
+# function for getting all laptops with their full details
+def get_all_laptops():
+    client = MongoClient(connection_string)
+    db = client[db_name]
+    laptop_collection = db["Laptop"]
+    cpu_collection = db["CPU"]
+    gpu_collection = db["GPU"]
+
+    laptops = [ laptop for laptop in laptop_collection.find() ]
+    cpus = { str(cpu.get("_id")): cpu for cpu in cpu_collection.find() }
+    gpus = { str(gpu.get("_id")): gpu for gpu in gpu_collection.find() }
+
+    for laptop in laptops:
+        laptop["cpu"] = cpus.get(str(laptop["cpu_id"]), None)
+        laptop["gpu"] = gpus.get(str(laptop["gpu_id"]), None)
+
+        laptop.pop("_id", None)
+        laptop.pop("cpu_id", None)
+        laptop.pop("gpu_id", None)
+        laptop.get("cpu").pop("_id", None)
+        laptop.get("gpu").pop("_id", None)
+
+    return laptops
+
+
 # function for getting a laptop model by a certain parameter value
 def search_laptop_names(search_collection, parameter, value):
     assert search_collection in ["Laptop", "CPU", "GPU"], "search_collection must be one of 'Laptop', 'CPU', or 'GPU'."
@@ -102,7 +127,7 @@ def search_laptops_by_range(parameter_type, min_val, max_val):
     laptop_collection = db["Laptop"]
 
     laptop_names = []
-    
+
     if parameter_type == "base_speed":
         cpu_collection = db["CPU"]
         cpu_cursor = cpu_collection.find(
@@ -126,13 +151,10 @@ def search_laptops_by_range(parameter_type, min_val, max_val):
     result = {"laptop_names": laptop_names}
     return json.dumps(result, default=str, indent=4)
 
-# function which combines multiple parameters
 
 if __name__ == "__main__":
     
-    colors_json = search_laptops_by_range("base_speed", 2.42, 3.7)
-    
-    with open("res/data_by_range_parameter.json", "a", encoding="utf-8") as file:
-        file.write(colors_json)
+    laptops = get_all_laptops()
+    print(json.dumps(laptops, default=str, indent=4))
 
     print("Done!")
