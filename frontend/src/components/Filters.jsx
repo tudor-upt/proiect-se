@@ -47,6 +47,18 @@ const filterQueryParams = {
     'GPU Memory': 'gpu/memory_size',
 };
 
+const filterUnits = {
+    'RAM Size': 'GB',
+    'Storage Size': 'GB',
+    'Display Size': '"',
+    'Weight': 'kg',
+    'Price': 'USD',
+    'Battery Capacity': 'Wh',
+    'Battery Life': 'hours',
+    'CPU Base Speeds': 'GHz',
+    'GPU Memory': 'MB'
+};
+
 function Filters({setFilters}) {
     const [options, setOptions] = useState({});
     const [selected, setSelected] = useState({});
@@ -243,6 +255,8 @@ function Filters({setFilters}) {
                             ) : (
                                 values.map((value, idx) => {
                                     const label = typeof value === 'object' ? value.name : value;
+                                    const unit = filterUnits[category] || '';
+                                    const displayLabel = `${label}${unit ? ' ' + unit : ''}`;
                                     return (
                                         <div key={idx} style={{marginBottom: '0.3rem'}}>
                                             <label style={{
@@ -256,7 +270,7 @@ function Filters({setFilters}) {
                                                     checked={selected[category]?.has(label) || false}
                                                     onChange={() => handleChange(category, label)}
                                                 />
-                                                {label}
+                                                {displayLabel}
                                             </label>
                                         </div>
                                     );
