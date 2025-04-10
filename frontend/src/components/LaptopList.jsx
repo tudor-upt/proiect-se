@@ -32,7 +32,6 @@ function LaptopList({ laptops, loading }) {
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        gap: '0rem',
                     }}>
                         <img src={laptop.image} alt={laptop.name} style={{ width: '100%', borderRadius: '4px' }} />
                         <h3 style={{ marginTop: '0.5rem' }}>{laptop.name}</h3>
