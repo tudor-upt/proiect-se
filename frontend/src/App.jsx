@@ -7,17 +7,29 @@ import './App.css';
 function App() {
     const [filters, setFilters] = useState({});
     const [laptops, setLaptops] = useState([]);
+    const [loading, setLoading] = useState(true); // 👈 Add loading state
 
     useEffect(() => {
-        const query = new URLSearchParams(filters).toString();
-        const url = query
-            ? `http://localhost:8000/laptops/?${query}`
-            : `http://localhost:8000/laptops/`;
+        const fetchLaptops = async () => {
+            setLoading(true); // 👈 Start loading
+            const query = new URLSearchParams(filters).toString();
+            const url = query
+                ? `http://localhost:8000/laptops/?${query}`
+                : `http://localhost:8000/laptops/`;
 
-        fetch(url)
-            .then(res => res.json())
-            .then(data => setLaptops(data))
-            .catch(err => console.error(err));
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                setLaptops(data);
+            } catch (err) {
+                console.error(err);
+                setLaptops([]);
+            } finally {
+                setLoading(false); // 👈 End loading
+            }
+        };
+
+        fetchLaptops();
     }, [filters]);
 
     return (
@@ -25,10 +37,11 @@ function App() {
             <Header />
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 <Filters setFilters={setFilters} />
-                <LaptopList laptops={laptops} />
+                <LaptopList laptops={laptops} loading={loading} />
             </div>
         </div>
     );
 }
+
 
 export default App;
