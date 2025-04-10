@@ -1,5 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
+import ReactSlider from 'react-slider';
+// import 'react-slider/lib/index.css';
+import './Filters.css';
+import { useRef } from 'react';
 
 const filterFetchEndpoints = {
     'Colors': 'colors',
@@ -155,6 +159,21 @@ function Filters({setFilters}) {
         }));
     };
 
+    const debounceTimeout = useRef(null);
+
+    const handlePriceDebounced = (value) => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
+
+        debounceTimeout.current = setTimeout(() => {
+            setFilters((prev) => ({
+                ...prev,
+                [filterQueryParams['Price']]: `${value[0]}-${value[1]}`
+            }));
+        }, 400); // 400ms delay
+    };
+
     if (loading) {
         return (
             <div style={{
@@ -233,23 +252,20 @@ function Filters({setFilters}) {
                                     <div style={{marginBottom: '0.5rem'}}>
                                         <span>Min: {priceRange[0]}</span> – <span>Max: {priceRange[1]}</span>
                                     </div>
-                                    <input
-                                        type="range"
+                                    <ReactSlider
+                                        className="price-slider"
+                                        thumbClassName="thumb"
+                                        trackClassName="track"
+                                        defaultValue={priceRange}
+                                        value={priceRange}
                                         min={priceBounds[0]}
                                         max={priceBounds[1]}
                                         step={1}
-                                        value={priceRange[0]}
-                                        onChange={(e) => handlePriceChange(0, e.target.value)}
-                                        style={{width: '100%', marginBottom: '0.5rem'}}
-                                    />
-                                    <input
-                                        type="range"
-                                        min={priceBounds[0]}
-                                        max={priceBounds[1]}
-                                        step={1}
-                                        value={priceRange[1]}
-                                        onChange={(e) => handlePriceChange(1, e.target.value)}
-                                        style={{width: '100%'}}
+                                        onChange={(value) => {
+                                            setPriceRange(value);
+                                            handlePriceDebounced(value);
+                                        }}
+                                        renderThumb={(props) => <div {...props} />} // 👈 No text inside thumb
                                     />
                                 </div>
                             ) : (
