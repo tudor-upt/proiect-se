@@ -167,7 +167,7 @@ function Filters({setFilters}) {
             padding: '1rem',
             backgroundColor: '#2a2a2a',
             borderRight: '1px solid #444',
-            height: '100vh',
+            height: '100%',
             overflowY: 'auto'
         }}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto'}}>
