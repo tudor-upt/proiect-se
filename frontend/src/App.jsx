@@ -7,27 +7,41 @@ import './App.css';
 function App() {
     const [filters, setFilters] = useState({});
     const [laptops, setLaptops] = useState([]);
+    const [loading, setLoading] = useState(true); // 👈 Add loading state
 
     useEffect(() => {
-        if (Object.keys(filters).length === 0) return;
+        const fetchLaptops = async () => {
+            setLoading(true); // 👈 Start loading
+            const query = new URLSearchParams(filters).toString();
+            const url = query
+                ? `http://localhost:8000/laptops/?${query}`
+                : `http://localhost:8000/laptops/`;
 
-        const query = new URLSearchParams(filters).toString();
-        fetch(`http://localhost:8000/laptops/?${query}`)
-            .then(res => res.json())
-            .then(data => setLaptops(data))
-            .catch(err => console.error(err));
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                setLaptops(data);
+            } catch (err) {
+                console.error(err);
+                setLaptops([]);
+            } finally {
+                setLoading(false); // 👈 End loading
+            }
+        };
+
+        fetchLaptops();
     }, [filters]);
 
     return (
-        <div>
+        <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <Header />
-            <div className="app-container" style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 <Filters setFilters={setFilters} />
-                <LaptopList laptops={laptops} />
+                <LaptopList laptops={laptops} loading={loading} />
             </div>
         </div>
-
     );
 }
+
 
 export default App;
